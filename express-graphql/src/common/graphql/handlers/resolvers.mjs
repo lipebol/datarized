@@ -41,7 +41,7 @@ class Resolvers {
             about: {
                 resolver: info.fieldName,
                 type: info.returnType.ofType.name
-                    .replace('Response', ''),
+                    .replace('_', ''),
                 fields: info.fieldNodes,
             }
         }
