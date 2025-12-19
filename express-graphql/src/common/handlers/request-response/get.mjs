@@ -22,7 +22,7 @@ export class GetHandler {
                 // __typename: --> essential when you deal with unions/interfaces
                 if (handler.data?.error) {
                     return {
-                        __typename: handler.data.error.name, error: handler.data.error.name,
+                        __typename: 'Errors', error: handler.data.error.name,
                         message: process.env[handler.data.error.name],
                         status_code: handler.data.error.status_code
                     }
@@ -30,10 +30,10 @@ export class GetHandler {
                 return handler.info ? {
                     __typename: 'Info', total: handler.data.count,
                     pages: handler.data.countpages
-                } : {
+                } : !handler.data.__typename ? {
                     __typename: handler.about.type,
                     data: Array.isArray(handler.data) ? handler.data : [handler.data]
-                }
+                } : handler.data
             }
         } catch (err) { console.log(err) }
     }
@@ -74,7 +74,7 @@ export class GetHandler {
                     break
                 case 'spotifExDaylists':
                     handler.model()
-                        .lookup('track', { path: 'artist', populate: { path: 'genres' } })
+                        .lookup('track',[{ path: 'album' }, { path: 'artists', populate: { path: 'genres' }}])
                         .nosql()
                     break
                 default:
