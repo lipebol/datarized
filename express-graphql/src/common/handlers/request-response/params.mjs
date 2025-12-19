@@ -36,6 +36,7 @@ export class ParamsHandler {
 
     static check(handler) {
         [
+            handler.now,
             handler.paramsType,
             handler.params,
             handler.authExternal,
@@ -68,7 +69,7 @@ export class ParamsHandler {
                             //     )
                             //     break
                             default:
-                                return ['trackid', 'albumid', 'artistid', 'name', 'date']
+                                return ['trackid', 'albumid', 'artistid', 'track', 'name', 'date']
                                     .includes(handler.filter) ?
                                     ParamsHandler.sanitize(handler) : 'invalid'
                         }
@@ -84,6 +85,7 @@ export class ParamsHandler {
 
     static set(handler) {
         return [
+            dayjs().format('YYYY-MM-DD'),
             handler.between ? 'dates' : 'multi',
             handler.params === '*' ?
                 undefined : handler.params.split('|'),
