@@ -43,8 +43,7 @@ services:
     container_name: osrm-us-illinois-bicycle
     tty: true
     stdin_open: true
-    command: |
-      bash -c "osrm-routed --algorithm mld /opt/data/illinois-latest.osrm"
+    command: osrm-routed --algorithm mld /opt/data/illinois-latest.osrm
     ports: 
       - 5000:5000
     volumes:
