@@ -78,7 +78,9 @@ export class SetHandler {
         try {
             if (!this.handler.data?.error) {
                 this.handler.db = 'sql'
-                this.handler.sql = { limit: this.handler.limit } 
+                this.handler.sql = {
+                    limit: this.handler.limit, offset : this.handler.offset
+                }
                 if (this.handler.filter && this.handler.params) {
                     this.handler.sql.order = [[this.handler.filter, 'ASC']]
                     this.handler.sql.where = (() => {
@@ -93,7 +95,7 @@ export class SetHandler {
                         return { [this.handler.filter]: { [Op.in]: this.handler.params } }
                     })()
                 }
-                if (this.handler.fields) { 
+                if (!this.handler.info && this.handler.fields) {
                     this.handler.sql.attributes = this.handler.fields 
                 }
             }
