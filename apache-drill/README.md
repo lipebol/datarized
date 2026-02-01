@@ -6,16 +6,6 @@
 
 > **ZooKeeper: jdbc:drill:zk=<zk-server-list>/drill/<clustername>**
 
-
-WITH file_drill AS (SELECT * FROM dfs.`/.data/files/data.json`)
-
-SELECT * FROM file_drill
-
-
-WITH table_drill AS (SELECT * FROM dfs.`/.data/tables/data`)
-
-SELECT * FROM table_drill
-
 ## :bulb: Autor
 
 "Sim, ao Deus único e sábio seja dada glória para todo sempre, por meio de Jesus Cristo! Amém!"
