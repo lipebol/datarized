@@ -72,6 +72,26 @@ services:
       - ./apache-drill/files:/.data/files
       - ./apache-drill/tables:/.data/tables
 
+  apache-airflow-2:
+    <<: *common
+    build:
+      dockerfile: Dockerfile
+      context: ./apache-airflow-2/local
+    image: lipebol/apache-airflow-2
+    container_name: apache-airflow-2
+    command: |
+      bash -c "airflow webserver --port 8080 & airflow scheduler &tail -f /dev/null"
+    ports:
+      - 8081:8080
+    volumes:
+      - ./apache-airflow-2/local/conf/airflow.cfg:/opt/user/datarized/airflow/airflow.cfg
+      - ./apache-airflow-2/local/dags:/opt/user/datarized/airflow/dags
+    deploy:
+      resources:
+        limits:
+          memory: 4096M
+    memswap_limit: 8192M
+
 networks:
   podman:
     external: true
