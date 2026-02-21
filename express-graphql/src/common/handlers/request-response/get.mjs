@@ -27,12 +27,10 @@ export class GetHandler {
                         status_code: handler.data.error.status_code
                     }
                 }
-                return handler.info ? {
-                    __typename: 'Info', total: handler.data.count,
-                    pages: handler.data.countpages, columns: handler.data.columns
-                } : !handler.data.__typename ? {
+                return !handler.data.__typename ? {
                     __typename: handler.about.type,
-                    data: Array.isArray(handler.data) ? handler.data : [handler.data]
+                    data: Array.isArray(handler.data) ?
+                        handler.data : [handler.data]
                 } : handler.data
             }
         } catch (err) { console.log(err) }
