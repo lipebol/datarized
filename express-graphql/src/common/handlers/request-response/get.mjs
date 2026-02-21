@@ -75,12 +75,13 @@ export class GetHandler {
                     break
                 case 'spotifExTracks':
                     handler
-                        .lookup('artist', { path: 'genres' })
+                        .lookup('artist', { path: 'genres' }) // tracks.artists.genres
                         .nosql()
                     break
                 case 'spotifExDaylists':
                     handler
-                        .lookup('track',[{ path: 'album' }, { path: 'artists', populate: { path: 'genres' }}])
+                        .lookup('track', ['album', 'artists.genres'])
+                        .fields()
                         .nosql()
                     break
                 default:
