@@ -7,7 +7,6 @@ export class ParamsHandler {
 
     static check(handler) {
         [
-            handler.now,
             handler.paramsType,
             handler.params,
             handler.authExternal,
@@ -56,18 +55,6 @@ export class ParamsHandler {
                 case 'multi':
                     handler.params = (() => {
                         switch (handler.filter) {
-                            // case 'ref':
-                            //     handler.params.forEach(
-                            //         (value) => {
-                            //             /// <-- 'true', não passa para o próximo mês
-                            //             String(
-                            //                 dayjs(value, 'YYYY-MM', true).$d
-                            //             ) === 'Invalid Date' ?
-                            //                 handler.validator.push('invalid') :
-                            //                 handler.validator.push(value)
-                            //         }
-                            //     )
-                            //     break
                             default:
                                 return ['trackid', 'albumid', 'artistid', 'track', 'name', 'date']
                                     .includes(handler.filter) ?
@@ -85,7 +72,6 @@ export class ParamsHandler {
 
     static set(handler) {
         return [
-            dayjs().format('YYYY-MM-DD'),
             handler.filter?.between ? 'dates' : 'multi',
             handler.params === '*' ?
                 undefined : handler.params.split('|'),
