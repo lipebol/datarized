@@ -20,43 +20,78 @@ export class SetHandler {
         return this
     }
 
-    fields() {
+    lookup(...args) {
         try {
-            if (this.handler.about?.fields && !this.handler.data?.error) {
-                this.handler.fields = new Array()
-                const unwrap = (content) => {
-                    return (
-                        Array.isArray(content) ? content[0] : content
-                    ).selectionSet?.selections
-                }
+            if (this.handler.lookup) {
+                if (args && !this.handler.data?.error) {
 
-                unwrap(this.handler.about.fields).forEach(
-                    (node) => {
-                        let nodename = node.typeCondition?.name.value
-                        if (nodename === this.handler.about.type) {
-                            this.handler.fields.push(
-                                ...unwrap(unwrap(node))
-                                    .map(selection => selection.name.value)
-                            )
-                        } else if (!['Errors', 'Info'].includes(nodename)) {
-                            this.handler.fields.push(
-                                ...unwrap(node)
-                                    .map(selection => selection.name.value)
-                            )
+                    const [parent, childs] = args
+
+                    const createpath = (value) => {
+                        return { select: this.handler.arrow ? '-_id ' : '', path: value }
+                    }
+
+                    this.handler.lookup = createpath(parent)
+
+                    if (childs.length > 1) {
+                        this.handler.lookup.populate = new Array()
+                        for (const child of childs) {
+                            if (child.includes('.')) {
+                                const [parent, childin] = child.split('.')
+                                this.handler.lookup.populate.push(
+                                    { ...createpath(parent), populate: createpath(childin) }
+                                )
+                            } else {
+                                this.handler.lookup.populate.push(createpath(child))
+                            }
                         }
                     }
-                )
+                }
             }
             return this
         } catch (err) { console.log(err) }
     }
 
-    lookup(...args) {
+    fields() {
         try {
-            if (this.handler.lookup) {
-                if (args && !this.handler.data?.error) {
-                    this.handler.lookup = args.length === 1 ?
-                        args[0] : { path: args[0], populate: args[1] }
+            if (this.handler.fields?.selections && !this.handler.data?.error) {
+                const fieldsByTypeName = (content) => { return content?.fieldsByTypeName }
+                const getTypeName = (content) => {
+                    let TypeName = Object.keys(content)
+                    if (TypeName.length > 1) {
+                        TypeName = TypeName.filter(type => type.includes('Fields'))
+                    }
+                    return TypeName.toString()
+                }
+
+                let parent = fieldsByTypeName(this.handler.fields.selections)
+                let parentfields = parent[getTypeName(parent)]
+                this.handler.fields = Object.keys(parentfields)
+
+                if (this.handler.arrow) { this.handler.fields.push('-_id') }
+
+                if (this.handler.lookup) {
+
+                    const setFields = (content) => { return Object.keys(content).join(' ') }
+                    const getPath = (content) => { return content?.path }
+
+                    parent = fieldsByTypeName(parentfields[getPath(this.handler.lookup)])
+                    if (parent) {
+                        parentfields = parent[getTypeName(parent)]
+                        const parentchilds = this.handler.lookup?.populate
+                        if (Array.isArray(parentchilds)) {
+                            this.handler.lookup.populate = new Array()
+                            for (const child of parentchilds) {
+                                let childfields = parentfields[getPath(child)]
+                                if (childfields) {
+                                    childfields = fieldsByTypeName(childfields)
+                                    child.select += setFields(childfields[getTypeName(childfields)])
+                                    this.handler.lookup.populate.push(child)
+                                }
+                            }
+                        }
+                        this.handler.lookup.select += setFields(parentfields)
+                    } else { this.handler.lookup = parent }
                 }
             }
             return this
@@ -79,7 +114,7 @@ export class SetHandler {
             if (!this.handler.data?.error) {
                 this.handler.db = 'sql'
                 this.handler.sql = {
-                    limit: this.handler.limit, offset : this.handler.offset
+                    limit: this.handler.limit, offset: this.handler.offset
                 }
                 if (this.handler.filter && this.handler.params) {
                     this.handler.sql.order = [[this.handler.filter, 'ASC']]
@@ -96,7 +131,7 @@ export class SetHandler {
                     })()
                 }
                 if (!this.handler.info && this.handler.fields) {
-                    this.handler.sql.attributes = this.handler.fields 
+                    this.handler.sql.attributes = this.handler.fields
                 }
             }
             return this
