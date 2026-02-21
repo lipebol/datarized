@@ -1,4 +1,5 @@
 import { Controllers } from '../../controllers.mjs'
+import { parseResolveInfo } from 'graphql-parse-resolve-info'
 
 class Resolvers {
 
@@ -29,34 +30,29 @@ class Resolvers {
                     Resolvers.handler(args, context, info)
                 )
             },
-            async spotifExDaylists(args, context, info) {
-                return await Controllers.multi(
-                    Resolvers.handler(args, context, info)
-                )
+            async spotifExDaylists(_, context, info) {
+                return await Controllers.multi(Resolvers.handler(context, info))
             }
         }
     }
 
-    static handler(args, context, info) {
-        let objecthandler = {
-            headers: context.headers,
-            filter: Object.keys(args)[0].toString(),
-            params: Object.values(args)[0],
-            page: args.page, info: args.info, lookup: args.lookup,
-            about: {
-                resolver: info.fieldName,
-                type: info.returnType.ofType.name
-                    .replace('_', ''),
-                fields: info.fieldNodes,
-            }
+    static handler(context, info) {
+        const { args, fieldsByTypeName } = parseResolveInfo(info)
+        const isbetween = 'between' in args
+        let config = {
+            headers: context?.headers, params: isbetween ? args.between : Object.values(args)[0],
+            filter: isbetween ? { between: args.by } : Object.keys(args)[0].toString(),
+            ...args, about: {
+                resolver: info.fieldName, type: info.returnType.ofType.name.replace('_','')
+            }, arrow: !context?.headers?.referer?.includes('tool') ? args.arrow : false
         }
 
-        if ('between' in args) {
-            objecthandler.filter = { between: args.by }
-            objecthandler.params = args.between
+        config.fields = { selections: fieldsByTypeName[config.about.resolver]?.data }
+        if (!config.fields.selections) {
+            config.fields.selections = fieldsByTypeName[`${config.about.type}Fields`]
         }
 
-        return objecthandler
+        return config
     }
 }
 
