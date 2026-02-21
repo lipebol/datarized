@@ -15,6 +15,11 @@ export const schemas = buildSchema(`
         columns: [String]
     }
 
+    type Arrow {
+        message: String!
+        object: String!
+        presigned: String!
+    }
 
 
 
@@ -122,7 +127,7 @@ export const schemas = buildSchema(`
         listen: Int
     }
     type spotifExDaylists { data: [spotifExDaylistFields] }
-    union spotifExDaylists_ = spotifExDaylists | Info | Errors
+    union spotifExDaylists_ = spotifExDaylists | Arrow | Info | Errors
 
 
 
@@ -149,7 +154,7 @@ export const schemas = buildSchema(`
         ): spotifExTracks_!
 
         spotifExDaylists(
-            date: String, page: Int, info: Boolean, lookup: Boolean
+            date: String, page: Int, info: Boolean, lookup: Boolean, arrow: Boolean
         ): spotifExDaylists_!
     }
 `)
