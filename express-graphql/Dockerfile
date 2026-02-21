@@ -9,6 +9,7 @@ RUN \
 
 # === DEV ===
 FROM base-build AS dev
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 WORKDIR /home/node/express-graphql
 
 # === PROD ===
