@@ -44,7 +44,7 @@ class Resolvers {
             filter: isbetween ? { between: args.by } : Object.keys(args)[0].toString(),
             ...args, about: {
                 resolver: info.fieldName, type: info.returnType.ofType.name.replace('_','')
-            }, arrow: !context?.headers?.referer?.includes('tool') ? args.arrow : false
+            }
         }
 
         config.fields = { selections: fieldsByTypeName[config.about.resolver]?.data }
