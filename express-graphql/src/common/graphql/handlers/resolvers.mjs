@@ -5,10 +5,8 @@ class Resolvers {
 
     static create() {
         return {
-            async DivvyBikes(args, context, info) {
-                return await Controllers.dates(
-                    Resolvers.handler(args, context, info)
-                )
+            async DivvyBikes(_, context, info) {
+                return await Controllers.dates(Resolvers.handler(context, info))
             },
             async spotifyAPI(args, context, info) {
                 return await Controllers.multi(
